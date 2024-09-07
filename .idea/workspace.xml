@@ -18,7 +18,7 @@
         <entry key="$PROJECT_DIR$/impact-trade-file-analysis-front-end" value="develop" />
       </map>
     </option>
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/impact-trade-file-analysis-front-end" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="ROOT_SYNC" value="DONT_SYNC" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
@@ -45,7 +45,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "<unknown>",
+    "git-widget-placeholder": "main",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -73,6 +73,7 @@
       <workItem from="1725679647351" duration="15000" />
       <workItem from="1725679682375" duration="438000" />
       <workItem from="1725680130338" duration="827000" />
+      <workItem from="1725680976301" duration="561000" />
     </task>
     <task id="LOCAL-00001" summary="Added FX Forward and Swap flow">
       <option name="closed" value="true" />
