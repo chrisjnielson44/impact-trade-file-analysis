@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        Int    @id @default(autoincrement())
+  firstName String
+  lastName  String
+  email     String @unique
+  password  String
+}
+
+model f22_fx_trades {
+  TransactionID    BigInt    @id
+  ACADIAID         BigInt?
+  TradingDate      DateTime? @db.Date
+  MaturityDate     DateTime? @db.Date
+  BuyCurrency      String?
+  SellCurrency     String?
+  SpotRate         Float?
+  ForwardRate      Float?
+  BuyNotional      BigInt?
+  SellNotional     Float?
+  CounterpartyID   BigInt?
+  CollateralFactor Float?
+}
+
+model f22_pfe_results {
+  TransactionID        BigInt?
+  CounterpartyID       BigInt?
+  BuyCurrency          String?
+  SellCurrency         String?
+  MaturityDate         DateTime? @db.Date
+  Days                 BigInt?
+  Uncollateralized_PFE Float?
+  Collateralized_PFE   Float?
+  id                   Int       @id @default(autoincrement())
+}
+
+model quic_fx_trades {
+  TransactionID    BigInt    @id
+  QUICID           BigInt?
+  TradingDate      DateTime? @db.Date
+  MaturityDate     DateTime? @db.Date
+  BuyCurrency      String?
+  SellCurrency     String?
+  SpotRate         Float?
+  ForwardRate      Float?
+  BuyNotional      BigInt?
+  SellNotional     Float?
+  CounterpartyID   BigInt?
+  CollateralFactor Float?
+}
+
+model quic_pfe_results {
+  TransactionID        BigInt?
+  QUICID               BigInt?
+  CounterpartyID       BigInt?
+  BuyCurrency          String?
+  SellCurrency         String?
+  MaturityDate         DateTime? @db.Date
+  Days                 BigInt?
+  Uncollateralized_PFE Float?
+  Collateralized_PFE   Float?
+  id                   Int       @id @default(autoincrement())
+}
