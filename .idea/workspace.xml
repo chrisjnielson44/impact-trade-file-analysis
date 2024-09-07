@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="de8db921-e218-4532-9f32-fc9c8562f1c6" name="Changes" comment="Added FX Forward and Swap flow" />
+    <list default="true" id="de8db921-e218-4532-9f32-fc9c8562f1c6" name="Changes" comment="Added FX Forward and Swap flow">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -40,8 +45,13 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "<unknown>",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -62,7 +72,7 @@
       <updated>1725679645850</updated>
       <workItem from="1725679647351" duration="15000" />
       <workItem from="1725679682375" duration="438000" />
-      <workItem from="1725680130338" duration="355000" />
+      <workItem from="1725680130338" duration="827000" />
     </task>
     <task id="LOCAL-00001" summary="Added FX Forward and Swap flow">
       <option name="closed" value="true" />
