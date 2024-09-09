@@ -32,6 +32,7 @@ model f22_fx_trades {
 }
 
 model f22_pfe_results {
+  id                   Int       @id @default(autoincrement())
   TransactionID        BigInt?
   CounterpartyID       BigInt?
   BuyCurrency          String?
@@ -40,7 +41,6 @@ model f22_pfe_results {
   Days                 BigInt?
   Uncollateralized_PFE Float?
   Collateralized_PFE   Float?
-  id                   Int       @id @default(autoincrement())
 }
 
 model quic_fx_trades {
@@ -59,6 +59,7 @@ model quic_fx_trades {
 }
 
 model quic_pfe_results {
+  id                   Int       @id @default(autoincrement())
   TransactionID        BigInt?
   QUICID               BigInt?
   CounterpartyID       BigInt?
@@ -68,5 +69,4 @@ model quic_pfe_results {
   Days                 BigInt?
   Uncollateralized_PFE Float?
   Collateralized_PFE   Float?
-  id                   Int       @id @default(autoincrement())
 }

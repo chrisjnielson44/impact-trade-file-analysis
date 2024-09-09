@@ -59,7 +59,7 @@ export default function SignIn() {
                 <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
                     <form className="space-y-6" onSubmit={handleSubmit}>
                         <div>
-                            <Label htmlFor="email" className="block text-sm font-bold leading-6 dark:text-white text-green-500">
+                            <Label htmlFor="email" className="block text-sm font-bold leading-6 text-primary">
                                 Email Address
                             </Label>
                             <div className="mt-2">
@@ -74,7 +74,7 @@ export default function SignIn() {
                         </div>
                         <div>
                             <div className="flex items-center justify-between">
-                                <Label htmlFor="password" className="block text-sm font-bold leading-6 dark:text-white text-green-500">
+                                <Label htmlFor="password" className="block text-sm font-bold leading-6 text-primary">
                                     Password
                                 </Label>
                                 {/* <div className="text-sm">
@@ -96,7 +96,7 @@ export default function SignIn() {
                         <div>
                             <button
                                 type="submit"
-                                className={`flex w-full justify-center rounded-md bg-green-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-green-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 ${loading ? 'cursor-not-allowed' : ''}`}
+                                className={`flex w-full justify-center rounded-md bg-primary px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-primary-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 ${loading ? 'cursor-not-allowed' : ''}`}
                                 disabled={loading}
                             >
                                 {loading ? (

@@ -32,73 +32,102 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
 
 export type Transaction = {
-    TransactionID: BigInt;
-    ACADIAID: BigInt | null;
+    TransactionID: string;
+    ACADIAID: string | null;
     TradingDate: string | null;
     MaturityDate: string | null;
     BuyCurrency: string | null;
     SellCurrency: string | null;
     SpotRate: number | null;
     ForwardRate: number | null;
-    BuyNotional: BigInt | null;
+    BuyNotional: string | null;
     SellNotional: number | null;
-    CounterpartyID: BigInt | null;
+    CounterpartyID: string | null;
     CollateralFactor: number | null;
+    UncollatPFE_5D: number | null;
+    UncollatPFE_15D: number | null;
+    UncollatPFE_30D: number | null;
+    CollatPFE_5D: number | null;
+    CollatPFE_15D: number | null;
+    CollatPFE_30D: number | null;
 }
 
-export const columns: ColumnDef<Transaction>[] = [
-    {
-        id: 'select',
-        header: ({ table }) => (
-            <Checkbox
-                checked={table.getIsAllPageRowsSelected()}
-                onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-            />
-        ),
-        cell: ({ row }) => (
-            <Checkbox
-                checked={row.getIsSelected()}
-                onCheckedChange={(value) => row.toggleSelected(!!value)}
-            />
-        ),
-    },
-    { accessorKey: "TransactionID", header: "Transaction ID" },
-    { accessorKey: "ACADIAID", header: "ACADIA ID" },
-    {
-        accessorKey: "TradingDate",
-        header: "Trading Date",
-        cell: ({ row }) => row.getValue("TradingDate") ? new Date(row.getValue("TradingDate") as string).toLocaleDateString() : ''
-    },
-    {
-        accessorKey: "MaturityDate",
-        header: "Maturity Date",
-        cell: ({ row }) => row.getValue("MaturityDate") ? new Date(row.getValue("MaturityDate") as string).toLocaleDateString() : ''
-    },
-    { accessorKey: "BuyCurrency", header: "Buy Currency" },
-    { accessorKey: "SellCurrency", header: "Sell Currency" },
-    { accessorKey: "SpotRate", header: "Spot Rate" },
-    { accessorKey: "ForwardRate", header: "Forward Rate" },
-    { accessorKey: "BuyNotional", header: "Buy Notional" },
-    { accessorKey: "SellNotional", header: "Sell Notional" },
-    { accessorKey: "CounterpartyID", header: "Counterparty ID" },
-    { accessorKey: "CollateralFactor", header: "Collateral Factor" },
-]
+const ALL_COUNTERPARTIES = "all_counterparties"
 
-export function TransactionTable() {
+interface TransactionTableProps {
+    engine: string;
+    product: string;
+    metric: string;
+}
+
+export function TransactionTable({ engine, product, metric }: TransactionTableProps) {
     const [transactions, setTransactions] = React.useState<Transaction[]>([])
     const [loading, setLoading] = React.useState(true)
+    const [counterparties, setCounterparties] = React.useState<string[]>([])
+    const [selectedCounterparty, setSelectedCounterparty] = React.useState<string>(ALL_COUNTERPARTIES)
+
+    const columns = React.useMemo<ColumnDef<Transaction>[]>(() => [
+        {
+            id: 'select',
+            header: ({ table }) => (
+                <Checkbox
+                    checked={table.getIsAllPageRowsSelected()}
+                    onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                />
+            ),
+            cell: ({ row }) => (
+                <Checkbox
+                    checked={row.getIsSelected()}
+                    onCheckedChange={(value) => row.toggleSelected(!!value)}
+                />
+            ),
+        },
+        { accessorKey: "TransactionID", header: "Transaction ID" },
+        { accessorKey: "ACADIAID", header: engine === 'quic' ? "QUIC ID" : "ACADIA ID" },
+        {
+            accessorKey: "TradingDate",
+            header: "Trading Date",
+            cell: ({ row }) => row.getValue("TradingDate") ? new Date(row.getValue("TradingDate") as string).toLocaleDateString() : ''
+        },
+        {
+            accessorKey: "MaturityDate",
+            header: "Maturity Date",
+            cell: ({ row }) => row.getValue("MaturityDate") ? new Date(row.getValue("MaturityDate") as string).toLocaleDateString() : ''
+        },
+        { accessorKey: "BuyCurrency", header: "Buy Currency" },
+        { accessorKey: "SellCurrency", header: "Sell Currency" },
+        { accessorKey: "SpotRate", header: "Spot Rate" },
+        { accessorKey: "ForwardRate", header: "Forward Rate" },
+        { accessorKey: "BuyNotional", header: "Buy Notional" },
+        { accessorKey: "SellNotional", header: "Sell Notional" },
+        { accessorKey: "CounterpartyID", header: "Counterparty ID" },
+        { accessorKey: "CollateralFactor", header: "Collateral Factor" },
+        { accessorKey: "UncollatPFE_5D", header: "Uncollat PFE (5D)" },
+        { accessorKey: "UncollatPFE_15D", header: "Uncollat PFE (15D)" },
+        { accessorKey: "UncollatPFE_30D", header: "Uncollat PFE (30D)" },
+        { accessorKey: "CollatPFE_5D", header: "Collat PFE (5D)" },
+        { accessorKey: "CollatPFE_15D", header: "Collat PFE (15D)" },
+        { accessorKey: "CollatPFE_30D", header: "Collat PFE (30D)" },
+    ], [engine])
 
     React.useEffect(() => {
         async function fetchData() {
             try {
-                const response = await fetch('/api/f22/fx')
+                setLoading(true)
+                let endpoint = `/api/${engine}/${product}/${metric}`
+                const response = await fetch(endpoint)
                 if (!response.ok) {
                     throw new Error('Failed to fetch data')
                 }
                 const data = await response.json()
                 setTransactions(data)
+                // Extract unique counterparties
+                const uniqueCounterparties = Array.from(new Set(data.map((t: Transaction) => t.CounterpartyID)))
+                setCounterparties(uniqueCounterparties.filter((c): c is string => c !== null))
             } catch (error) {
                 console.error("Error fetching transactions:", error)
             } finally {
@@ -106,11 +135,18 @@ export function TransactionTable() {
             }
         }
         fetchData()
-    }, [])
+    }, [engine, product, metric])
 
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({
+        UncollatPFE_5D: false,
+        UncollatPFE_15D: false,
+        UncollatPFE_30D: false,
+        CollatPFE_5D: false,
+        CollatPFE_15D: false,
+        CollatPFE_30D: false,
+    })
     const [rowSelection, setRowSelection] = React.useState({})
 
     const table = useReactTable({
@@ -132,11 +168,18 @@ export function TransactionTable() {
         },
         initialState: {
             pagination: {
-                pageSize: 15,  // Set the number of rows per page here
+                pageSize: 15,
             },
         },
     })
 
+    React.useEffect(() => {
+        if (selectedCounterparty !== ALL_COUNTERPARTIES) {
+            table.getColumn("CounterpartyID")?.setFilterValue(selectedCounterparty)
+        } else {
+            table.getColumn("CounterpartyID")?.setFilterValue(undefined)
+        }
+    }, [selectedCounterparty, table])
 
     if (loading) {
         return <div>Loading...</div>
@@ -152,8 +195,25 @@ export function TransactionTable() {
                         onChange={(event) =>
                             table.getColumn("TransactionID")?.setFilterValue(event.target.value)
                         }
-                        className="max-w-sm"
+                        className="max-w-sm mr-4"
                     />
+                    <Select
+                        value={selectedCounterparty}
+                        onValueChange={setSelectedCounterparty}
+                    >
+                        <SelectTrigger className="w-[200px] mr-4">
+                            <SelectValue placeholder="Select Counterparty" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value={ALL_COUNTERPARTIES}>All Counterparties</SelectItem>
+                            {counterparties.map((counterparty) => (
+                                <SelectItem key={counterparty} value={counterparty}>
+                                    {counterparty}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline" className="ml-auto">
@@ -169,7 +229,7 @@ export function TransactionTable() {
                                         <DropdownMenuCheckboxItem
                                             key={column.id}
                                             checked={column.getIsVisible()}
-                                            onCheckedChange={() => column.toggleVisibility()}
+                                            onCheckedChange={(value) => column.toggleVisibility(!!value)}
                                         >
                                             {column.id}
                                         </DropdownMenuCheckboxItem>

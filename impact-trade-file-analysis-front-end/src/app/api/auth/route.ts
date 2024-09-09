@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import { NextResponse } from 'next/server';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/lib/authOptions";
-import { prisma } from '@/app/lib/prisma';
+import prisma from '@/app/lib/prisma';
 import exp from 'constants';
 import { getUserData } from '@/app/lib/data';
 

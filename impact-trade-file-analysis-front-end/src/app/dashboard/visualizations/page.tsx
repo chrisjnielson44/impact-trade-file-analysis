@@ -4,8 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Nav } from '@/app/dashboard/components/nav/Nav';
 import { UserNav } from '@/app/dashboard/components/nav/ProfileAvatar';
 import {MobileProfile} from "@/app/dashboard/components/nav/mobilenav";
-import {SelectEngine} from "@/app/dashboard/components/selectors/SelectEngine";
-import {SelectProduct} from "@/app/dashboard/components/selectors/SelectProduct";
+import {SelectEngine} from "@/app/dashboard/analytics/components/selectors/SelectEngine";
+import {SelectProduct} from "@/app/dashboard/analytics/components/selectors/SelectProduct";
 import {ChartCard} from "@/app/dashboard/visualizations/components/ChartCard";
 
 export const metadata: Metadata = {

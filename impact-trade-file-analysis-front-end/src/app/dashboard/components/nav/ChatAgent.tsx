@@ -69,7 +69,7 @@ export function Chat() {
                 <div className="fixed top-0 right-0 h-full w-[500px] z-50 bg-background shadow-lg border-l-2 rounded-xl">
                     <div className="flex flex-col h-full">
                         <div className="p-3 border-b border-gray-300 dark:border-gray-700 flex justify-between items-center">
-                            <h2 className="text-xl text-green-500 font-bold">Paywind AI</h2>
+                            <h2 className="text-xl text-primary font-bold">Eliza</h2>
                             <Button variant="outline" size="icon" onClick={handleOpenChange} className={"text-gray-500 hover:text-red-500"}>
                                 <X/>
                             </Button>
