@@ -1,0 +1,323 @@
+/**
+ * Dynamic Highcharts Dashboard Generator
+ * 
+ * This function creates customizable dashboards using Highcharts Dashboard framework.
+ * It allows for dynamic KPIs, multiple chart types, and data grids.
+ */
+
+function ezMain(data) {
+  try {
+    // Validate input data
+    if (!data || !data.dataSource || !data.components) {
+      return {
+        error: true,
+        message: "Required parameters missing. Please provide dataSource and components."
+      };
+    }
+
+    // Process the data source configuration
+    const dataPoolConfig = processDataSource(data.dataSource);
+    
+    // Process the components configuration
+    const componentsConfig = processComponents(data.components);
+    
+    // Configure the layout based on provided layout or generate default
+    const layoutConfig = processLayout(data.layout, componentsConfig);
+    
+    // Generate the final dashboard configuration
+    const dashboardConfig = {
+      dataPool: dataPoolConfig,
+      editMode: {
+        enabled: data.editMode || false,
+        contextMenu: {
+          enabled: data.contextMenu || false
+        }
+      },
+      gui: {
+        layouts: [layoutConfig]
+      },
+      components: componentsConfig
+    };
+    
+    // Generate Markdown code to render the dashboard
+    const markdownOutput = generateDashboardMarkdown(dashboardConfig, data.title || "Dynamic Dashboard");
+    
+    return markdownOutput;
+  } catch (error) {
+    return {
+      error: true,
+      message: `Error generating dashboard: ${error.message}`,
+      stack: error.stack
+    };
+  }
+}
+
+/**
+ * Process the data source configuration
+ */
+function processDataSource(dataSource) {
+  const dataPool = {
+    connectors: []
+  };
+  
+  // Process each data source
+  if (Array.isArray(dataSource)) {
+    dataSource.forEach((source, index) => {
+      const connector = {
+        id: source.id || `data-source-${index}`,
+        type: source.type || 'JSON',
+        options: {
+          firstRowAsNames: source.firstRowAsNames !== undefined ? source.firstRowAsNames : false,
+          data: source.data || []
+        }
+      };
+      
+      // Add column names if provided
+      if (source.columnNames) {
+        connector.options.columnNames = source.columnNames;
+      }
+      
+      // Add CSV specific options if applicable
+      if (source.type === 'CSV') {
+        connector.options.csvURL = source.url;
+        if (source.dataRefreshRate) {
+          connector.options.dataRefreshRate = source.dataRefreshRate;
+        }
+      }
+      
+      dataPool.connectors.push(connector);
+    });
+  } else {
+    // Single data source
+    const connector = {
+      id: dataSource.id || 'data-source',
+      type: dataSource.type || 'JSON',
+      options: {
+        firstRowAsNames: dataSource.firstRowAsNames !== undefined ? dataSource.firstRowAsNames : false,
+        data: dataSource.data || []
+      }
+    };
+    
+    // Add column names if provided
+    if (dataSource.columnNames) {
+      connector.options.columnNames = dataSource.columnNames;
+    }
+    
+    // Add CSV specific options if applicable
+    if (dataSource.type === 'CSV') {
+      connector.options.csvURL = dataSource.url;
+      if (dataSource.dataRefreshRate) {
+        connector.options.dataRefreshRate = dataSource.dataRefreshRate;
+      }
+    }
+    
+    dataPool.connectors.push(connector);
+  }
+  
+  return dataPool;
+}
+
+/**
+ * Process the components configuration
+ */
+function processComponents(components) {
+  return components.map((component, index) => {
+    // Common component properties
+    const baseComponent = {
+      renderTo: component.renderTo || `component-${index}`,
+      type: component.type,
+      sync: component.sync || {
+        visibility: true,
+        highlight: true,
+        extremes: true
+      }
+    };
+    
+    // Add connector configuration if provided
+    if (component.connector) {
+      baseComponent.connector = component.connector;
+    }
+    
+    // Process based on component type
+    switch (component.type) {
+      case 'KPI':
+        return {
+          ...baseComponent,
+          value: component.value || 0,
+          valueFormat: component.valueFormat || '{value}',
+          title: component.title || '',
+          subtitle: component.subtitle || ''
+        };
+        
+      case 'Highcharts':
+        return {
+          ...baseComponent,
+          chartOptions: component.chartOptions || {
+            chart: {
+              type: component.chartType || 'column',
+              animation: false,
+              spacing: [30, 30, 30, 20]
+            },
+            title: {
+              text: component.title || ''
+            },
+            xAxis: {
+              type: component.xAxisType || 'category'
+            },
+            yAxis: {
+              title: {
+                text: component.yAxisTitle || ''
+              },
+              ...(component.plotLines ? { plotLines: component.plotLines } : {})
+            },
+            tooltip: {
+              stickOnContact: true,
+              ...(component.tooltipFormat ? { valueFormat: component.tooltipFormat } : {})
+            },
+            plotOptions: {
+              series: {
+                marker: {
+                  radius: 6
+                }
+              }
+            },
+            legend: {
+              enabled: component.showLegend !== false,
+              verticalAlign: 'top'
+            },
+            credits: {
+              enabled: false
+            }
+          }
+        };
+        
+      case 'DataGrid':
+        return {
+          ...baseComponent,
+          dataGridOptions: component.dataGridOptions || {
+            credits: {
+              enabled: false
+            }
+          }
+        };
+        
+      default:
+        return baseComponent;
+    }
+  });
+}
+
+/**
+ * Process the layout configuration
+ */
+function processLayout(layout, components) {
+  // If custom layout is provided, use it
+  if (layout) {
+    return layout;
+  }
+  
+  // Count the number of each component type to organize layout
+  const kpiCount = components.filter(c => c.type === 'KPI').length;
+  const chartCount = components.filter(c => c.type === 'Highcharts').length;
+  const gridCount = components.filter(c => c.type === 'DataGrid').length;
+  
+  // Generate default layout based on component counts
+  const layoutConfig = {
+    rows: []
+  };
+  
+  // Add KPI row if there are KPIs
+  if (kpiCount > 0) {
+    const kpiRow = {
+      cells: []
+    };
+    
+    // Create cells for KPIs
+    components
+      .filter(c => c.type === 'KPI')
+      .forEach(kpi => {
+        kpiRow.cells.push({
+          id: kpi.renderTo
+        });
+      });
+    
+    layoutConfig.rows.push(kpiRow);
+  }
+  
+  // Add chart row(s)
+  if (chartCount > 0) {
+    // Group charts in pairs per row
+    const chartGroups = [];
+    const charts = components.filter(c => c.type === 'Highcharts');
+    
+    for (let i = 0; i < charts.length; i += 2) {
+      chartGroups.push(charts.slice(i, i + 2));
+    }
+    
+    // Create rows for chart groups
+    chartGroups.forEach(group => {
+      const chartRow = {
+        cells: []
+      };
+      
+      group.forEach(chart => {
+        chartRow.cells.push({
+          id: chart.renderTo
+        });
+      });
+      
+      layoutConfig.rows.push(chartRow);
+    });
+  }
+  
+  // Add data grid row if there are data grids
+  if (gridCount > 0) {
+    const gridRow = {
+      cells: []
+    };
+    
+    // Create cells for data grids
+    components
+      .filter(c => c.type === 'DataGrid')
+      .forEach(grid => {
+        gridRow.cells.push({
+          id: grid.renderTo
+        });
+      });
+    
+    layoutConfig.rows.push(gridRow);
+  }
+  
+  return layoutConfig;
+}
+
+/**
+ * Generate Markdown code for the dashboard
+ */
+function generateDashboardMarkdown(dashboardConfig, title) {
+  // Convert dashboard config to a string
+  const dashboardConfigStr = JSON.stringify(dashboardConfig, null, 2);
+  
+  // Generate Markdown template with JavaScript code
+  const markdown = `# ${title}
+
+\`\`\`javascript
+Highcharts.setOptions({
+    chart: {
+        styledMode: true
+    }
+});
+
+Dashboards.board('container', ${dashboardConfigStr}, true);
+\`\`\`
+`;
+  
+  return markdown;
+}
+
+// Example usage
+if (typeof module !== 'undefined') {
+  module.exports = {
+    ezMain
+  };
+}
